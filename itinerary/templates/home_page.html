@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourism Home Page</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-family: Arial, sans-serif;
+            height: 100%;
+            background-color: #FFFFFF;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            padding: 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header a {
+            text-decoration: none;
+            margin: 0 15px;
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        header a.active {
+            color: #f5a623; 
+        }
+
+        section {
+            width: 100%;
+            min-height: 150vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: #f0f0f0;
+            position: relative;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            padding: 0;
+        }
+
+        .section1 {
+            background: url("{% static 'images/image1.jpg' %}") center/contain no-repeat;
+        }
+
+        
+        .section2 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #FFFFFF;
+            padding: 50px 20px;
+            color: #333;
+        }
+
+        
+        .section3 {
+            background: url("{% static 'images/image3.jpg' %}") center/contain no-repeat;
+        }
+
+        .section4 {
+            background: url("{% static 'images/image4.jpg' %}") center/contain no-repeat;
+        }
+        .section5 {
+            background: url("{% static 'images/image5.jpg' %}") center/contain no-repeat;
+        }
+        .section6 {
+            background: url("{% static 'images/image6.jpg' %}") center/contain no-repeat;
+        }
+        .section7 {
+            background: url("{% static 'images/image7.jpg' %}") center/contain no-repeat;
+        }
+
+        .welcome-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .text-content {
+            width: 60%;
+            padding: 20px;
+        }
+
+        .text-content h2 {
+            font-size: 18px;
+            color: #999;
+        }
+
+        .text-content h1 {
+            font-size: 36px;
+            color: #333;
+            margin: 10px 0;
+            line-height: 1.2;
+        }
+
+        .text-content p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .text-content button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #a4a144;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .text-content button:hover {
+            background-color: #888844;
+        }
+
+        .image-content {
+            width: 0%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-content img {
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .feature-image {
+            width: 50%;
+            max-width: 1200px;
+            margin-top: 30px;
+       
+            height: 50%;
+        }
+
+        @media (max-width: 768px) {
+            header a {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header a {
+                font-size: 12px;
+            }
+
+            section {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <header>
+            <a href="#section1" class="nav-link">Home</a>
+            <a href="#section2" class="nav-link">Destinations</a>
+            <a href="#section3" class="nav-link">Tour</a>
+            <a href="#section4" class="nav-link">What We Offer</a>
+            <a href="#section5" class="nav-link">About Us</a>
+            <a href="#section6" class="nav-link">Our Team</a>
+            <a href="#section7" class="nav-link">Contact Us</a>
+        </header>
+
+        <section class="section1" id="section1"></section>
+
+        <section class="section2" id="section2">
+            <div class="welcome-container">
+                <div class="text-content">
+                    <h2>Welcome to Sri Lanka</h2>
+                    <h1>Come with us, and let us plan your perfect Sri Lankan adventure!</h1>
+                    <p>"We specialize in creating tailor-made experiences just for you. Whether you're seeking cultural discoveries, adventure, or relaxation, our AI-powered assistant will help you craft a personalized itinerary that fits your budget, preferences, and travel dates. Trust us to make your Sri Lankan journey unforgettable!"</p>
+                    <button>Click to create your dream trip with AI ➤</button>
+                </div>
+                <div class="image-content">
+                    <img src="{% static 'images/ico.png' %}" alt="Ayubowan Greeting">
+                </div>
+            </div>
+            <img class="feature-image" src="{% static 'images/ico.jpg' %}" alt="Features Overview">
+        </section>
+
+        <section class="section3" id="section3"></section>
+
+        <section class="section4" id="section4"></section>
+
+        <section class="section5" id="section5">
+            <h1>About Us</h1>
+            <p>Learn more about our mission and values.</p>
+        </section>
+
+        <section class="section6" id="section6">
+            <h1>Our Team</h1>
+            <p>Meet the passionate individuals behind our services.</p>
+        </section>
+
+        <section class="section7" id="section7">
+            <h1>Contact Us</h1>
+            <p>Get in touch with us for more information.</p>
+        </section>
+    </div>
+
+    <script>
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function setActiveLink() {
+            navLinks.forEach(link => {
+                const section = document.querySelector(link.getAttribute('href'));
+                if (window.scrollY >= section.offsetTop && window.scrollY < section.offsetTop + section.offsetHeight) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', setActiveLink);
+
+        window.onload = setActiveLink;
+    </script>
+</body>
+
+</html>

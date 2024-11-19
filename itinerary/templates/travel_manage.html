@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Manage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .food-priority-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: space-around;
+        }
+
+        .food-priority-button {
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .food-priority-button.selected {
+            border-color: #FFD700;
+            background-color: #FFD700;
+            color: white;
+        }
+
+        .food-priority-button.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .food-priority-button:hover:not(.disabled) {
+            background-color: #f0f0f0;
+        }
+
+        .min-budget {
+            font-weight: bold;
+            color: #dc3545; /* Red color */
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 100px;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Travel Manage</h1>
+    <form id="travelForm" method="POST" action="{% url 'result' %}" onsubmit="return validateForm()">
+        {% csrf_token %}
+
+        <div>
+            <label for="landing_date">Landing Date (yyyy-mm-dd):</label>
+            <input type="date" id="landing_date" name="landing_date" required>
+        </div>
+
+        <div>
+            <label for="flying_date">Flying Date (yyyy-mm-dd):</label>
+            <input type="date" id="flying_date" name="flying_date" required>
+        </div>
+
+        <div>
+            <label for="budget">Budget (in USD):</label>
+            <input type="number" id="budget" name="budget" required>
+            <p class="min-budget" id="minBudgetText">Minimum budget: $0</p>
+        </div>
+
+        <div>
+            <label for="trip_type">Trip Type:</label>
+            <select id="trip_type" name="trip_type" required>
+                <option value="">Select Trip Type</option>
+                <option value="General">General</option>
+                <option value="Cultural and Heritage Tours">Cultural and Heritage Tours</option>
+                <option value="Nature and Wildlife Tours">Nature and Wildlife Tours</option>
+                <option value="Beach and Coastal Tours">Beach and Coastal Tours</option>
+                <option value="Adventure Tours">Adventure Tours</option>
+            </select>
+        </div>
+
+        <div class="food-priority-buttons">
+            <button type="button" class="food-priority-button" id="low" onclick="selectFoodPriority('low')">Low</button>
+            <button type="button" class="food-priority-button" id="medium" onclick="selectFoodPriority('medium')">Medium</button>
+            <button type="button" class="food-priority-button" id="high" onclick="selectFoodPriority('high')">High</button>
+        </div>
+
+        <input type="hidden" id="food_priority" name="food_priority">
+
+        <div>
+            <button type="submit">Next</button>
+        </div>
+    </form>
+
+    <!-- Modal for Validation Messages -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="modalText">Message here</p>
+        </div>
+    </div>
+
+    <script>
+        const minBudgetText = document.getElementById("minBudgetText");
+        const landingDateInput = document.getElementById("landing_date");
+        const flyingDateInput = document.getElementById("flying_date");
+        const budgetInput = document.getElementById("budget");
+        const modal = document.getElementById("modal");
+        const modalText = document.getElementById("modalText");
+        const foodPriorityButtons = document.querySelectorAll(".food-priority-button");
+
+        const today = new Date().toISOString().split("T")[0];
+        landingDateInput.min = today;
+
+        landingDateInput.addEventListener("change", updateFlyingDateMin);
+        flyingDateInput.addEventListener("change", calculateMinBudget);
+        budgetInput.addEventListener("input", calculateMinBudget);
+
+        function updateFlyingDateMin() {
+            const landingDate = new Date(landingDateInput.value);
+            flyingDateInput.min = landingDateInput.value;
+            calculateMinBudget();
+        }
+
+        function calculateMinBudget() {
+            const landingDate = new Date(landingDateInput.value);
+            const flyingDate = new Date(flyingDateInput.value);
+
+            if (flyingDate > landingDate) {
+                const tripDays = Math.max(1, Math.floor(((flyingDate - landingDate) / (1000 * 60 * 60 * 24)) - 1));
+                const minBudget = tripDays * 31;
+                minBudgetText.textContent = `Minimum budget: $${minBudget}`;
+                minBudgetText.style.color = budgetInput.value < minBudget ? "#dc3545" : "#28a745";
+                updateFoodPriorityButtons(tripDays);
+            } else {
+                minBudgetText.textContent = "Select valid dates to see minimum budget";
+            }
+        }
+
+        function updateFoodPriorityButtons(tripDays) {
+            const dailyBudget = budgetInput.value / tripDays;
+
+            foodPriorityButtons.forEach(button => button.classList.remove("disabled", "selected"));
+            if (dailyBudget - (dailyBudget * 0.1) < 18) {
+                disableButton("low");
+            }
+            if (dailyBudget - (dailyBudget * 0.2) < 18) {
+                disableButton("medium");
+            }
+            if (dailyBudget - (dailyBudget * 0.3) < 18) {
+                disableButton("high");
+            }
+        }
+
+        function disableButton(priority) {
+            const button = document.getElementById(priority);
+            button.classList.add("disabled");
+            button.onclick = null;
+        }
+
+        function validateForm() {
+            const landingDate = new Date(landingDateInput.value);
+            const flyingDate = new Date(flyingDateInput.value);
+            const budget = parseFloat(budgetInput.value);
+            const tripDays = Math.max(1, (flyingDate - landingDate) / (1000 * 60 * 60 * 24) - 1);
+
+            if (!landingDate || !flyingDate || flyingDate <= landingDate) {
+                showModal("Please select valid landing and flying dates. The flying date must be after the landing date.");
+                return false;
+            }
+
+            if (tripDays > 20) {
+                showModal("The trip duration cannot exceed 20 days.");
+                return false;
+            }
+
+            if (budget < tripDays * 31) {
+                showModal("Insufficient budget. Please ensure it covers at least $20/day for food and $11/day for activities.");
+                return false;
+            }
+
+            return true;
+        }
+
+        function showModal(message) {
+            modalText.textContent = message;
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        function selectFoodPriority(priority) {
+            foodPriorityButtons.forEach(button => button.classList.remove("selected"));
+            document.getElementById(priority).classList.add("selected");
+            document.getElementById("food_priority").value = priority;
+        }
+    </script>
+</body>
+</html>

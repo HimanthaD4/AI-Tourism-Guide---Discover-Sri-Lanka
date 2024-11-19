@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Trip Results</title>
+</head>
+<body>
+    <h1>Your Trip Details</h1>
+    
+    <p><strong>Number of Days:</strong> {{ number_of_days }}</p>
+    <p><strong>Total Budget:</strong> ${{ budget }}</p>
+    <p><strong>Daily Budget:</strong> ${{ daily_budget|floatformat:2 }}</p>
+    <p><strong>Trip Type:</strong> {{ trip_type }}</p> <!-- Display trip type -->
+    <p><strong>Food Priority:</strong> {{ food_priority|title }}</p>
+    <p><strong>Daily Food Cost:</strong> ${{ food_cost|floatformat:2 }}</p>
+    <p><strong>Remaining Budget for Activities:</strong> ${{ remaining_budget|floatformat:2 }}</p>
+</body>
+</html>
