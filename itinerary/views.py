@@ -4,6 +4,7 @@ from django.urls import reverse
 from datetime import datetime
 
 
+
 def home(request): 
     return render(request, "home_page.html")
 
@@ -23,51 +24,61 @@ def get_daily_budget_range(daily_budget):
 
 
 def travel_manage(request):
-    if request.method == "POST":
-        landing_date = request.POST.get("landing_date")
-        flying_date = request.POST.get("flying_date")
-        budget = int(request.POST.get("budget"))
-        trip_type = request.POST.get("trip_type")
-        food_priority = request.POST.get("food_priority")
+    if request.method == 'POST':
+        landing_date = request.POST.get('landing_date')
+        flying_date = request.POST.get('flying_date')
+        budget = request.POST.get('budget')
+        trip_type = request.POST.get('trip_type')
+        food_priority = request.POST.get('food_priority')
 
-        # Calculate number of effective travel days (excluding landing and flying dates)
-        landing_date = datetime.strptime(landing_date, "%Y-%m-%d")
-        flying_date = datetime.strptime(flying_date, "%Y-%m-%d")
-        number_of_days = max(1, (flying_date - landing_date).days - 1)
+        if landing_date and flying_date and budget and trip_type and food_priority:
+            try:
+                landing_date_obj = datetime.strptime(landing_date, '%Y-%m-%d')
+                flying_date_obj = datetime.strptime(flying_date, '%Y-%m-%d')
+                number_of_days = (flying_date_obj - landing_date_obj).days
 
-        # Redirect to the result view with the required parameters
-        return redirect(reverse("result", args=[number_of_days, budget, trip_type, food_priority]))
+                # Subtract 1 day from the number of days to fix the issue
+                number_of_days = number_of_days - 1
+
+                if number_of_days < 1 or number_of_days > 20:
+                    return render(request, "travel_manage.html", {'error': 'Trip duration must be between 1 and 20 days.'})
+
+                result_url = reverse('result', kwargs={
+                    'number_of_days': number_of_days,
+                    'budget': int(budget),
+                    'trip_type': trip_type,
+                    'food_priority': food_priority
+                })
+                return redirect(result_url)
+
+            except ValueError:
+                return render(request, "travel_manage.html", {'error': 'Invalid date format. Please use YYYY-MM-DD.'})
 
     return render(request, "travel_manage.html")
 
 
 def result(request, number_of_days, budget, trip_type, food_priority):
-    adjusted_days = number_of_days
-    daily_budget = budget / adjusted_days if adjusted_days > 0 else 0
+    food_cost_percentage = {'low': 0.10, 'medium': 0.20, 'high': 0.30}
+    
+    # Calculate food cost based on the selected priority
+    food_cost = (budget / number_of_days) * food_cost_percentage.get(food_priority, 0.20)
+    remaining_budget = (budget / number_of_days) - food_cost
+    daily_budget = budget / number_of_days
 
-    food_cost_percentage = {
-        'low': 0.1,
-        'medium': 0.3,
-        'high': 0.4
-    }.get(food_priority, 0)
-
-    food_cost = daily_budget * food_cost_percentage
-    remaining_budget = daily_budget - food_cost
-
+    # Example activities data (you should replace this with your actual data logic)
     activities_by_category = {}
-    categories = ['Jetwing', 'Authentic Ceylon', 'Adventure Spirit', 'Barefoot Luxury', 'General']
-    for category in categories:
-        activities = Activity.objects.filter(category=category)
-        activities_by_category[category] = activities
+    locations_by_category = {}
 
     context = {
-        'number_of_days': adjusted_days,
+        'number_of_days': number_of_days,
         'budget': budget,
-        'daily_budget': daily_budget,
-        'food_cost': food_cost,
-        'remaining_budget': remaining_budget,
-        'activities_by_category': activities_by_category,
         'trip_type': trip_type,
         'food_priority': food_priority,
+        'food_cost': food_cost,
+        'remaining_budget': remaining_budget,
+        'daily_budget': daily_budget,
+        'activities_by_category': activities_by_category,
+        'locations_by_category': locations_by_category,
     }
+
     return render(request, 'result.html', context)
