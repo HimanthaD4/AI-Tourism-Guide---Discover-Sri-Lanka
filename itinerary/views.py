@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Location, Activity, Route, DailyBudgetRange, FoodCost
+from .models import Location, Activity, Route
 from django.urls import reverse 
 from datetime import datetime
 
@@ -9,18 +9,7 @@ def home(request):
     return render(request, "home_page.html")
 
 
-def calculate_days(start_date, end_date):
-    start = datetime.strptime(start_date, '%Y-%m-%d')
-    end = datetime.strptime(end_date, '%Y-%m-%d')
-    delta = end - start
-    return delta.days + 1
 
-
-def get_daily_budget_range(daily_budget):
-    ranges = DailyBudgetRange.objects.filter(range_min__lte=daily_budget, range_max__gte=daily_budget).order_by('range_min')
-    if ranges:
-        return ranges[0]
-    return None
 
 
 def travel_manage(request):
@@ -37,7 +26,6 @@ def travel_manage(request):
                 flying_date_obj = datetime.strptime(flying_date, '%Y-%m-%d')
                 number_of_days = (flying_date_obj - landing_date_obj).days
 
-                # Subtract 1 day from the number of days to fix the issue
                 number_of_days = number_of_days - 1
 
                 if number_of_days < 1 or number_of_days > 20:
@@ -60,14 +48,11 @@ def travel_manage(request):
 def result(request, number_of_days, budget, trip_type, food_priority):
     food_cost_percentage = {'low': 0.10, 'medium': 0.20, 'high': 0.30}
     
-    # Calculate food cost based on the selected priority
     food_cost = (budget / number_of_days) * food_cost_percentage.get(food_priority, 0.20)
     remaining_budget = (budget / number_of_days) - food_cost
     daily_budget = budget / number_of_days
 
-    # Example activities data (you should replace this with your actual data logic)
-    activities_by_category = {}
-    locations_by_category = {}
+    
 
     context = {
         'number_of_days': number_of_days,
@@ -77,8 +62,7 @@ def result(request, number_of_days, budget, trip_type, food_priority):
         'food_cost': food_cost,
         'remaining_budget': remaining_budget,
         'daily_budget': daily_budget,
-        'activities_by_category': activities_by_category,
-        'locations_by_category': locations_by_category,
+     
     }
 
     return render(request, 'result.html', context)

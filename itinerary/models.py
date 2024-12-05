@@ -1,15 +1,5 @@
 from django.db import models
 
-
-class DailyBudgetRange(models.Model):
-    range_min = models.IntegerField()
-    range_max = models.IntegerField()
-    daily_budget = models.IntegerField()
-
-    def __str__(self):
-        return f"Daily Range {self.range_min} - {self.range_max}"
-
-
 class Location(models.Model):
     name = models.CharField(max_length=255)
     image_url = models.URLField()
@@ -49,11 +39,3 @@ class Route(models.Model):
 
     def __str__(self):
         return f"Day {self.day_number} - {self.category}"
-
-
-class FoodCost(models.Model):
-    daily_budget_range = models.ForeignKey(DailyBudgetRange, related_name='food_costs', on_delete=models.CASCADE)
-    price = models.IntegerField()
-
-    def __str__(self):
-        return f"Food Cost for Range {self.daily_budget_range.range_min} - {self.daily_budget_range.range_max}"
