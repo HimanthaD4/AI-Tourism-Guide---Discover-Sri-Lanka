@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Trip Results</title>
-    <!-- Add Bootstrap for responsiveness and styling -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .location-card {
             margin-bottom: 30px;
-        }
-        .activity-card {
-            margin-bottom: 15px;
         }
         .category-header {
             background-color: #f8f9fa;
@@ -19,20 +16,17 @@
             margin-top: 20px;
             border-radius: 5px;
         }
-        .category-card {
+        .activity-card {
             border: 1px solid #ddd;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 5px;
         }
-        .category-card h5 {
-            font-size: 18px;
+        .activity-card h5 {
+            font-size: 16px;
             font-weight: bold;
         }
-        .category-card p {
-            font-size: 14px;
-        }
-        .category-card .price {
+        .activity-card .price {
             font-weight: bold;
             color: #007bff;
         }
@@ -60,49 +54,39 @@
             </div>
         </div>
 
-        {% load custom_filters %}
+        <!-- Location Cards with Activities of Relevant Category -->
         <div class="row">
-            <!-- Loop through categories and show activities for each category -->
-            {% for category, activities in activities_by_category.items %}
+            {% for location, activities in activities_by_location.items %}
             <div class="col-12 mb-5">
-                <h3 class="category-header">{{ category }}</h3>
+                <div class="card location-card">
+                    <img src="{% static location.image_url %}" class="card-img-top" alt="{{ location.name }}">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ location.name }}</h3>
+                        <p class="card-text">{{ location.notes }}</p>
+                    </div>
+                </div>
+
+                <!-- Activity Cards for the Relevant Trip Type -->
                 <div class="row">
-                    {% for location in locations_by_category|get_item:category %}
-                        <!-- Location Section -->
-                        <div class="col-md-4">
-                            <div class="card location-card">
-                                <img src="{{ location.image_url }}" class="card-img-top" alt="{{ location.name }}">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ location.name }}</h5>
-                                    <p class="card-text">{{ location.notes }}</p>
-                                </div>
+                    <h4 class="category-header">{{ trip_type }}</h4>
+                    <div class="row">
+                        {% for activity in activities %}
+                        <div class="col-md-6">
+                            <div class="activity-card">
+                                <h5>{{ activity.name }}</h5>
+                                <p>{{ activity.description|slice:":100" }}...</p>
+                                <p class="price">Price: ${{ activity.price }}</p>
+                                <p>Rank: {{ activity.activity_rank }}</p>
                             </div>
                         </div>
-                        <!-- Activities Section for Each Location -->
-                        <div class="col-md-8">
-                            <div class="row">
-                                {% for activity in activities %}
-                                    {% if activity.location == location %}
-                                        <div class="col-12 col-md-6">
-                                            <div class="card category-card">
-                                                <h5>{{ activity.name }}</h5>
-                                                <p>{{ activity.description|slice:":100" }}...</p>
-                                                <p class="price">Price: ${{ activity.price }}</p>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        {% endfor %}
+            {% endfor %}
         </div>
-
     </div>
 
-    <!-- Include Bootstrap JS for interactivity -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

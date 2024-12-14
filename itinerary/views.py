@@ -46,13 +46,24 @@ def travel_manage(request):
 
 
 def result(request, number_of_days, budget, trip_type, food_priority):
-    food_cost_percentage = {'low': 0.10, 'medium': 0.20, 'high': 0.30}
-    
-    food_cost = (budget / number_of_days) * food_cost_percentage.get(food_priority, 0.20)
+    # Calculate food cost based on food priority
+    food_cost_percentage = {'low': 0.10, 'medium': 0.30, 'high': 0.40}
+    food_cost = (budget / number_of_days) * food_cost_percentage.get(food_priority, 0.30)
     remaining_budget = (budget / number_of_days) - food_cost
     daily_budget = budget / number_of_days
 
-    
+    # Retrieve all locations and filter activities based on trip_type
+    locations = Location.objects.all()
+    activities_by_location = {}
+
+    # Filter activities by the selected trip_type
+    for location in locations:
+        location_activities = []
+        for activity in location.activities.all():
+            if activity.category == trip_type:  # Only include activities that match the trip_type
+                location_activities.append(activity)
+        if location_activities:  # Only add location if it has relevant activities
+            activities_by_location[location] = location_activities
 
     context = {
         'number_of_days': number_of_days,
@@ -62,7 +73,7 @@ def result(request, number_of_days, budget, trip_type, food_priority):
         'food_cost': food_cost,
         'remaining_budget': remaining_budget,
         'daily_budget': daily_budget,
-     
+        'activities_by_location': activities_by_location
     }
 
     return render(request, 'result.html', context)

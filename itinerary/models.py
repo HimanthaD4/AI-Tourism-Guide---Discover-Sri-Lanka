@@ -34,8 +34,6 @@ class Activity(models.Model):
 
 class Route(models.Model):
     category = models.CharField(max_length=100)
-    day_number = models.IntegerField()
-    location = models.ForeignKey(Location, related_name='routes', on_delete=models.CASCADE)
+    locations = models.ManyToManyField(Location)
+    day_number = models.IntegerField()  # Ensure day_number is defined
 
-    def __str__(self):
-        return f"Day {self.day_number} - {self.category}"
